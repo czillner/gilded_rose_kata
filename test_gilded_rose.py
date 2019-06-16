@@ -80,12 +80,18 @@ class GildedRoseTest(unittest.TestCase):
         gilded_rose = GildedRose(items)
         gilded_rose.update_quality()
         self.assertEqual(gilded_rose.items[0].quality, 80)
-        
+
     def test_quality_of_conjured_is_decreased_by_2_per_day(self):
         items = [Item("conjured", 10, 20)]
         gilded_rose = GildedRose(items)
         gilded_rose.update_quality()
         self.assertEqual(gilded_rose.items[0].quality, 18)
+        
+    def test_quality_of_ticket_does_not_go_higher_than_50(self):
+        items = [Item("Backstage passes", 5, 48)]
+        gilded_rose = GildedRose(items)
+        gilded_rose.update_quality()
+        self.assertEqual(gilded_rose.items[0].quality, 50)
     
 
 if __name__ == '__main__':

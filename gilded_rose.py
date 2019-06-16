@@ -1,5 +1,34 @@
 # -*- coding: utf-8 -*-
 
+
+def is_epic(item):
+    return "Sulfuras, Hand of Ragnaros" in item.name
+
+
+def is_increasable(item):
+    return item.quality < 50
+
+
+def is_ticket(item):
+    return item.name in "Backstage passes to a TAFKAL80ETC concert"
+
+
+def is_brie(item):
+    return item.name == "Aged Brie"
+
+
+def descrease_quality(item, delta=-1):
+    return increase_quality(item, delta=delta)
+
+
+def increase_quality(item, delta=1):
+    item.quality += delta
+    
+
+def is_decreaseable(item):
+    return item.quality > 0
+
+
 class GildedRose(object):
 
     def __init__(self, items):
@@ -7,36 +36,33 @@ class GildedRose(object):
 
     def update_quality(self):
         for item in self.items:
-            if item.name != "Aged Brie" and item.name not in "Backstage passes to a TAFKAL80ETC concert":
-                if item.quality > 0:
-                    if item.name != "Sulfuras, Hand of Ragnaros":
-                        item.quality = item.quality - 1
-                        if "conjured" in item.name and item.quality > 0:
-                            item.quality = item.quality - 1
+            if is_epic(item):
+                continue
 
+            if is_brie(item) or is_ticket(item):
+                if is_increasable(item):
+                    increase_quality(item)
+                if is_ticket(item):
+                    if item.sell_in < 11 and is_increasable(item):
+                        increase_quality(item)
+                    if item.sell_in < 6 and is_increasable(item):
+                        increase_quality(item)
             else:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
-                    if item.name in "Backstage passes to a TAFKAL80ETC concert":
-                        if item.sell_in < 11:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-                        if item.sell_in < 6:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-            if item.name != "Sulfuras, Hand of Ragnaros":
-                item.sell_in = item.sell_in - 1
+                if is_decreaseable(item):
+                    descrease_quality(item)
+                    if "conjured" in item.name and is_decreaseable(item):
+                        descrease_quality(item)
+
+
+            item.sell_in = item.sell_in - 1
             if item.sell_in < 0:
-                if item.name != "Aged Brie":
-                    if item.name not in "Backstage passes to a TAFKAL80ETC concert":
-                        if item.quality > 0:
-                            if item.name != "Sulfuras, Hand of Ragnaros":
-                                item.quality = item.quality - 1
-                    else:
-                        item.quality = item.quality - item.quality
-                else:
-                    if item.quality < 50:
-                        item.quality = item.quality + 1
+                if not is_brie(item):
+                    if is_ticket(item):
+                        item.quality = 0
+                    elif is_decreaseable(item):
+                        descrease_quality(item)
+                elif is_increasable(item):
+                    increase_quality(item)
 
 
 class Item:
